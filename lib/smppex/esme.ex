@@ -81,6 +81,30 @@ defmodule SMPPEX.ESME do
   The whole `opts` argument may also be ommited in order to start ESME with the defaults.
   The returned value is either `{:ok, pid}` or `{:error, reason}`.
   """
+  def start_link(host, port, {_module, _args} = mod_with_args, proxy_opts, opts) do
+    transport = Keyword.get(opts, :transport, @default_transport)
+    timeout = Keyword.get(opts, :timeout, @default_timeout)
+    sock_opts = [:binary, {:packet, 0}, {:active, :once}]
+    esme_opts = Keyword.get(opts, :esme_opts, [])
+
+    case transport.connect(convert_host(host), port, sock_opts, proxy_opts) do
+      {:ok, socket} ->
+        session_opts = {Session, [mod_with_args, esme_opts], :esme}
+
+        case TransportSession.start_link(socket, transport, session_opts) do
+          {:ok, pid} ->
+            {:ok, pid}
+
+          {:error, _} = error ->
+            transport.close(socket)
+            error
+        end
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
   def start_link(host, port, {_module, _args} = mod_with_args, opts \\ []) do
     transport = Keyword.get(opts, :transport, @default_transport)
     timeout = Keyword.get(opts, :timeout, @default_timeout)
