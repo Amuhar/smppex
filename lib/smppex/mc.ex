@@ -91,11 +91,14 @@ defmodule SMPPEX.MC do
         {SMPPEX.Session, [mod_with_args, mc_opts], :mc}
       )
 
-    case start_result do
-      {:error, _} = error -> error
-      {:ok, _, _} -> {:ok, ref}
-      {:ok, _} -> {:ok, ref}
-    end
+
+    start_result
+
+    # case start_result do
+    #   {:error, _} = error -> error
+    #   {:ok, _, _} -> {:ok, ref}
+    #   {:ok, _} -> {:ok, ref}
+    # end
   end
 
   @spec stop(Ranch.ref()) :: :ok
