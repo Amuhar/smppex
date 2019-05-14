@@ -92,7 +92,7 @@ defmodule SMPPEX.MC do
       )
 
 
-    start_result
+    {start_result, :check}
 
     # case start_result do
     #   {:error, _} = error -> error
